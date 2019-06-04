@@ -1,0 +1,12 @@
+python preprocess.py -train_src /path/to/train.txt.src  \
+                     -train_tgt /path/to/train.txt.tgt  \
+                     -valid_src /path/to/val.txt.src    \
+                     -valid_tgt /path/to/val.txt.tgt    \
+                     -save_data data/newser/OpenNMT-input/newser \
+                     -src_seq_length 1000 \
+                     -tgt_seq_length 1000 \
+                     -src_seq_length_trunc 500 \
+                     -tgt_seq_length_trunc 300 \
+                     -dynamic_dict \
+                     -share_vocab \
+                     -max_shard_size 10000000
