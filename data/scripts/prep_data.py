@@ -68,7 +68,7 @@ def clean_archive_data(folder):
 
 def get_split(split):
     with open(f"../final_data/{split}.src.txt", "w") as output_src, \
-            open("../final_data/{split}.tgt.txt", "w") as output_tgt, \
+            open(f"../final_data/{split}.tgt.txt", "w") as output_tgt, \
             open(f"../ids/{split}.id", "r") as input_file:
         for count, line in enumerate(input_file):
             if count % 1000 == 0:
