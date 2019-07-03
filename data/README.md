@@ -1,5 +1,8 @@
 **Multi-News dataset**:
 
+**UPDATE:**</br>
+[Google Drive link](https://drive.google.com/open?id=1qZ3zJBv0zrUy4HVWxnx33IsrHGimXLPy) for preprocessed dataset.
+
 Please see the document `license.txt` (same as the [Newsroom Dataset](https://summari.es/download/)) for terms of use.
 
 To reproduce the dataset (requires Python >= 3.6):
