@@ -5,6 +5,7 @@ import glob
 from nltk.tokenize import ToktokTokenizer
 # pip install newspaper3k
 from newspaper import fulltext
+TOTAL_WORDS = 500
 
 # function to clean data based on observed leftover social media text from html
 def clean(line):
@@ -100,8 +101,62 @@ def check_available(folder):
                 url = json_dict["archived_snapshots"]["closest"]["url"]
                 output.write(f"{url}\tarticles/{file}\n")
             except KeyError:
-
                 continue
+
+def truncate(split, mode):
+    with open(f"{split}.txt.{mode}", "w") as output_file:
+        with open(f"copy_data_pre_truncate/{split}.txt.{mode}.final", "r") as input_file:
+            for count, line in enumerate(input_file):
+                print(count)
+                line = line.strip()
+                line_word_split = line.split()
+                if len(line_word_split) < 500:
+                    output_file.write(f"{line}\n")
+                else:
+                    sources_split = line.split("story_separator_special_tag")
+                    num_sources = len(sources_split)
+                    num_words_ar = [len(source.split()) for source in sources_split]
+                    words_ar = [source.split() for source in sources_split]
+                    per_source_count = math.floor(TOTAL_WORDS / num_sources)
+                    total_ar = [0] * num_sources
+                    # print(f"original word count for each source: {num_words_ar}")
+                    total = 0
+                    saturated = []
+                    # while we haven't used up all the tokens in the array of sents
+                    while len(saturated) < num_sources:
+                        for inner_count, num in enumerate(num_words_ar):
+                            # if we've already filled this entry, just add it to the
+                            # total
+                            if num in saturated:
+                                total += num
+                                continue
+                            if num < per_source_count:
+                                cur_num = num
+                                saturated.append(num)
+                            else:
+                                cur_num = per_source_count
+                            total_ar[inner_count] = cur_num
+                            total += cur_num
+                        if total >= 490:
+                            break
+                        else:
+                            remaining = 500 - total
+                            total = 0
+                            divide_among = num_sources - len(saturated)
+                            if divide_among == 0:
+                                break
+                            per_source_count += remaining//divide_among
+                    # print(len(total_ar))
+                    final_words_ar = []
+                    for count_words, words in enumerate(words_ar):
+                        cur_string = " ".join(words[:total_ar[count_words]])
+                        final_words_ar.append(cur_string)
+                    final_str = " story_separator_special_tag ".join(final_words_ar).strip()
+                    output_file.write(f"{final_str}\n")
+                    # print(final_str)
+                    # print(f"final word count for each source: {total_ar}")
+                    # print("=============================================")
+
 if __name__ == "__main__":
     if not os.path.exists("../final_data"):
         os.makedirs("../final_data")
