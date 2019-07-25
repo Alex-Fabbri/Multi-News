@@ -2,6 +2,7 @@
 
 **UPDATE:**</br>
 [Google Drive link](https://drive.google.com/open?id=1qZ3zJBv0zrUy4HVWxnx33IsrHGimXLPy) for preprocessed dataset.
+[Link to unprocessed data](https://drive.google.com/open?id=1qZ3zJBv0zrUy4HVWxnx33IsrHGimXLPy) (only replaced \n with "NEWLINE_CHAR" and append "|||||" to the end of each story. 
 
 Please see the document `license.txt` (same as the [Newsroom Dataset](https://summari.es/download/)) for terms of use.
 
