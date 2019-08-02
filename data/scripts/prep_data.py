@@ -157,6 +157,25 @@ def truncate(split, mode):
                     # print(f"final word count for each source: {total_ar}")
                     # print("=============================================")
 
+def clean_summary_str(s):
+    s = s.lower()
+    s = s.replace('<unk>','')
+    s = s.replace('`', '')
+    s = s.replace('.', '')
+    s = s.replace(',', '')
+    s = s.replace(';', '')
+    s = s.replace('\'', '')
+    s = s.replace('\"', '')
+    s = s.replace('(', '')
+    s = s.replace(')', '')
+    s = s.replace('-', ' ')
+    s = s.replace('<p>', '')
+    s = s.replace('</p>', '')
+    s = s.replace('<t>', '')
+    s = s.replace('</t>', '')
+    s = s.replace('[!@#$]', '')
+    return s
+                    
 if __name__ == "__main__":
     if not os.path.exists("../final_data"):
         os.makedirs("../final_data")
