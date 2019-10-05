@@ -103,59 +103,53 @@ def check_available(folder):
             except KeyError:
                 continue
 
-def truncate(split, mode):
-    with open(f"{split}.txt.{mode}", "w") as output_file:
-        with open(f"copy_data_pre_truncate/{split}.txt.{mode}.final", "r") as input_file:
-            for count, line in enumerate(input_file):
-                print(count)
-                line = line.strip()
-                line_word_split = line.split()
-                if len(line_word_split) < 500:
-                    output_file.write(f"{line}\n")
-                else:
-                    sources_split = line.split("story_separator_special_tag")
-                    num_sources = len(sources_split)
-                    num_words_ar = [len(source.split()) for source in sources_split]
-                    words_ar = [source.split() for source in sources_split]
-                    per_source_count = math.floor(TOTAL_WORDS / num_sources)
-                    total_ar = [0] * num_sources
-                    # print(f"original word count for each source: {num_words_ar}")
-                    total = 0
-                    saturated = []
-                    # while we haven't used up all the tokens in the array of sents
-                    while len(saturated) < num_sources:
-                        for inner_count, num in enumerate(num_words_ar):
-                            # if we've already filled this entry, just add it to the
-                            # total
-                            if num in saturated:
-                                total += num
-                                continue
-                            if num < per_source_count:
-                                cur_num = num
-                                saturated.append(num)
-                            else:
-                                cur_num = per_source_count
-                            total_ar[inner_count] = cur_num
-                            total += cur_num
-                        if total >= 490:
+def truncate(corpus, separator_tag):
+    result = []
+    for count, line in enumerate(corpus):
+        print(f"example number: {count}")
+        line_word_split = line.split()
+        if len(line_word_split) < 500:
+            result.append(line)
+            print("total length smaller than 500")
+            print("=============================================")
+        else:
+            sources_split = line.split(separator_tag)
+            num_sources = len(sources_split)
+            words_ar = [source.split() for source in sources_split]
+            num_words_ar = [len(words) for words in words_ar]
+            print(f"initial number of words: {str(num_words_ar)}")
+            per_source_count = math.floor(TOTAL_WORDS / num_sources)
+            total_ar = [0] * num_sources
+            total = 0
+            done = {}
+            while total < TOTAL_WORDS and len(done) < len(num_words_ar):
+                # e.g. total=499 and still trying to add -- just add from the first doc which isn't done
+                if per_source_count == 0:
+                    for index, x in enumerate(total_ar):
+                        if index not in done:
+                            total_ar[index] += TOTAL_WORDS - total
                             break
-                        else:
-                            remaining = 500 - total
-                            total = 0
-                            divide_among = num_sources - len(saturated)
-                            if divide_among == 0:
-                                break
-                            per_source_count += remaining//divide_among
-                    # print(len(total_ar))
-                    final_words_ar = []
-                    for count_words, words in enumerate(words_ar):
-                        cur_string = " ".join(words[:total_ar[count_words]])
-                        final_words_ar.append(cur_string)
-                    final_str = " story_separator_special_tag ".join(final_words_ar).strip()
-                    output_file.write(f"{final_str}\n")
-                    # print(final_str)
-                    # print(f"final word count for each source: {total_ar}")
-                    # print("=============================================")
+                    break
+                min_amount = min(min([x for x in num_words_ar if x > 0]), per_source_count)
+                total_ar = [x + min_amount if index not in done else x for index, x in enumerate(total_ar)]
+                for index, val in enumerate(num_words_ar):
+                    if val == min_amount:
+                        done[index] = True
+                num_words_ar = [x - min_amount for x in num_words_ar]
+                total = sum(total_ar)
+                if len(done) == len(num_words_ar):
+                    break
+                per_source_count = math.floor((TOTAL_WORDS - total) / (len(num_words_ar) - len(done))) 
+            final_words_ar = []
+            for count_words, words in enumerate(words_ar):
+                cur_string = " ".join(words[:total_ar[count_words]])
+                final_words_ar.append(cur_string)
+            final_str = (" " + separator_tag + " ").join(final_words_ar).strip() # e.g. " story_separator_special_tag "
+            result.append(final_str)
+            print("final word count for each source:", total_ar)
+            print("=============================================")
+
+    return result
 
 def clean_summary_str(s):
     s = s.lower()
