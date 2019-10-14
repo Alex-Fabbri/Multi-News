@@ -1,9 +1,9 @@
 CUDA_VISIBLE_DEVICES=0,1 python translate.py -gpu 0 \
                     -batch_size 8 \
                     -beam_size 4 \
-                    -model model_newser_atten/Feb17__step_15000.pt \
+                    -model model_newser_atten/Feb17__step_20000.pt \
                     -src Newser_data_test_src/test.txt.src.tokenized.fixed.cleaned.final.cleaned.final \
-                    -output output_newser/Feb17__step_15000_full.output\
+                    -output output_newser/Feb17__step_20000_full.output\
                     -min_length 200 \
                     -max_length 300 \
                     -verbose \

@@ -5,7 +5,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py -save_model model_newser_atten/Feb17_ \
 		        -word_vec_size 128 \
 		        -rnn_size 512  -layers 1 \
 		        -encoder_type brnn \
-		        -train_steps 30000 \
+		        -train_steps 20000 \
 		        -max_grad_norm 4 \
 		        -dropout 0. \
 		        -batch_size 2 \
