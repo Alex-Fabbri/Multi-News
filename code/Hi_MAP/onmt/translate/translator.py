@@ -338,7 +338,6 @@ class Translator(object):
                     n_best=self.n_best,
                     return_attention=self.replace_unk)
             else:
-                # 2333: go here
                 return self._translate_batch(batch, data)
 
     def _fast_translate_batch(self,

@@ -67,14 +67,8 @@ class DatasetBase(torchtext.data.Dataset):
         features = []
         n_feats = None
 
-        # 2333 We add here
-        # get sentence length
-        # sent = ' '.join(tokens)
-        # sents = sent_tokenize(sent)
-        # n_sents = len(sents)
-        # 233 We stop here
+        #TODO We stop here
         for token in tokens:
-
             split_token = token.split(u"￨")
             assert all([special != split_token[0] for special in specials]), \
                 "Dataset cannot contain Special Tokens"

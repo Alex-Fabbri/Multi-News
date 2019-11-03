@@ -357,7 +357,7 @@ class TextDataset(DatasetBase):
             # print ('....',src)
 
 
-            # 2333 We add here
+            #TODO We add here
             # get sentence length
             sent = ' '.join(src)
             sents = sent_tokenize(sent)
@@ -368,9 +368,6 @@ class TextDataset(DatasetBase):
             else:
                 n_sents[0] = n_sents[0] - 1 # change on the first one
             example["src_sents"] = torch.LongTensor(n_sents)
-
-            # import pdb;pdb.set_trace()
-            # 233 We stop here
 
             src_vocab = torchtext.vocab.Vocab(Counter(src),
                                               specials=[UNK_WORD, PAD_WORD])
@@ -385,15 +382,13 @@ class TextDataset(DatasetBase):
                     [0] + [src_vocab.stoi[w] for w in tgt] + [0])
                 example["alignment"] = mask
 
-                # 2333 We add here
+                #TODO We add here
                 # get sentence length
                 sent = ' '.join(tgt)
                 sents = sent_tokenize(sent)
                 n_sents = [len(x.split(' ')) for x in sents]
                 n_sents[0] = n_sents[0] - 1  # change on the first one
                 example["tgt_sents"] = torch.LongTensor(n_sents)
-                # 233 We stop here
-
 
             yield example
 
