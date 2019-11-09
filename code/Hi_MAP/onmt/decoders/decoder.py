@@ -599,10 +599,10 @@ class InputFeedRNNDecoder(RNNDecoderBase):
         # Return result.
         #TODO: attns['std'] is a list of tensors, length is output_step, each tensor shape is (batch=2,input_step=200)
         #TODO: compute mmr attention here:
-        mmr_among_words = self._run_mmr_attention(sent_encoder, sent_decoder, src_sents,attns["std"][0].size()[-1])
+        mmr_among_words = self._run_mmr_attention(sent_encoder, sent_decoder, src_sents,attns["copy"][0].size()[-1])
 
         #TODO modify attention with MMR scores
-        for output_step in attns["std"]:
+        for output_step in attns["copy"]:
             attention_weight = output_step
             # pairwise multiplication
             attention_weight = torch.mul(mmr_among_words,attention_weight)
