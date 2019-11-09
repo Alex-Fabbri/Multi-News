@@ -591,24 +591,24 @@ class InputFeedRNNDecoder(RNNDecoderBase):
             elif self._copy:
                 attns["copy"] = attns["std"] # attns["copy"] is a list of tensor for each output step=51, each size: [batch_size=2, input_step=200]
 
+        ###########################
+        attns["mmr"] = []
+        #TODO : the sentence representation for decoder
+        sent_decoder = decoder_outputs[-1].unsqueeze(0)  # shape: (1, batch_size=2,dim=512)
 
-        if not dec: #if this is not dec?
-            attns["mmr"] = []
-            #TODO : the sentence representation for decoder
-            sent_decoder = decoder_outputs[-1].unsqueeze(0)  # shape: (1, batch_size=2,dim=512)
+        # Return result.
+        #TODO: attns['std'] is a list of tensors, length is output_step, each tensor shape is (batch=2,input_step=200)
+        #TODO: compute mmr attention here:
+        mmr_among_words = self._run_mmr_attention(sent_encoder, sent_decoder, src_sents,attns["std"][0].size()[-1])
 
-            # Return result.
-            #TODO: attns['std'] is a list of tensors, length is output_step, each tensor shape is (batch=2,input_step=200)
-            #TODO: compute mmr attention here:
-            mmr_among_words = self._run_mmr_attention(sent_encoder, sent_decoder, src_sents,attns["std"][0].size()[-1])
-
-            #TODO modify attention with MMR scores
-            for output_step in attns["std"]:
-                attention_weight = output_step
-                # pairwise multiplication
-                attention_weight = torch.mul(mmr_among_words,attention_weight)
-                attns["mmr"].append(attention_weight.cuda())
-            attns["std"] = attns["mmr"]
+        #TODO modify attention with MMR scores
+        for output_step in attns["std"]:
+            attention_weight = output_step
+            # pairwise multiplication
+            attention_weight = torch.mul(mmr_among_words,attention_weight)
+            attns["mmr"].append(attention_weight.cuda())
+        # attns['copy'] is used later on, so need to set that
+        attns["copy"] = attns["mmr"]
 
         # decoder_outputs is a list of tensors for each output step=51, each tensor: (batch_size=2,dim=512)
         return hidden, decoder_outputs, attns
