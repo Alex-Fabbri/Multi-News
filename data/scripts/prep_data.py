@@ -114,6 +114,9 @@ def truncate(corpus, separator_tag):
             print("=============================================")
         else:
             sources_split = line.split(separator_tag)
+            # previous dataset had separator at the end of each example
+            if sources_split[-1] == "":
+                del sources_split[-1]
             num_sources = len(sources_split)
             words_ar = [source.split() for source in sources_split]
             num_words_ar = [len(words) for words in words_ar]
