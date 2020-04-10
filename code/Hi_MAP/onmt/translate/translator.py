@@ -338,6 +338,7 @@ class Translator(object):
                     n_best=self.n_best,
                     return_attention=self.replace_unk)
             else:
+                # 2333: go here
                 return self._translate_batch(batch, data)
 
     def _fast_translate_batch(self,
@@ -556,9 +557,6 @@ class Translator(object):
         def rvar(a):
             return var(a.repeat(1, beam_size, 1))
 
-        def rsentsvar(a):
-            return var(a.repeat(beam_size, 1))
-
         def bottle(m):
             return m.view(batch_size * beam_size, -1)
 
@@ -574,9 +572,7 @@ class Translator(object):
 
 
         enc_states, memory_bank, sent_encoder  = self.model.encoder(src, batch.src_sents, src_lengths)# pass in the src_sents
-        old_src_sents = rsentsvar(batch.src_sents.clone().data)
-        sent_encoder = rvar(sent_encoder.data)
-        
+        old_src_sents = batch.src_sents.clone()
 
 
         dec_states = self.model.decoder.init_decoder_state(

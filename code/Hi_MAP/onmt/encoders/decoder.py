@@ -89,7 +89,7 @@ class RNNDecoderBase(nn.Module):
 
         # Set up the standard attention.
         self._coverage = coverage_attn
-        #TODO: the following is init only, we are using this one
+        # 2333 TODO: the following is init only, we are using this one
         self.attn = onmt.modules.GlobalAttention(
             hidden_size, coverage=coverage_attn,
             attn_type=attn_type, attn_func=attn_func
@@ -141,7 +141,7 @@ class RNNDecoderBase(nn.Module):
         # END
 
 
-        # TODO I changed this return value 'sent_decoder'
+        # 23333: TODO I changed this return value 'sent_decoder'
 
 
         # Run the forward pass of the RNN.
@@ -320,65 +320,6 @@ class InputFeedRNNDecoder(RNNDecoderBase):
         self.mmr_atten_W = nn.Linear(dim, dim, bias=False).cuda() # 512*512
 
 
-    # def _run_mmr(self,sent_encoder,sent_decoder,src_sents,input_step):
-    #     '''
-    #     This is the original method
-    #     # sent_encoder: size (sent_len=9,batch=2,dim=512)
-    #     # sent_decoder: size (sent_len=1,batch=2,dim=512)
-    #     # src_sents: size (batch=2,sent_len=9)
-    #     function to calculate mmr
-    #     :param sent_encoder:
-    #     :param sent_decoder:
-    #     :param src_sents:
-    #     :return:
-    #     '''
-    #
-    #
-    #     pdist = nn.PairwiseDistance(p=2)
-    #     sent_decoder=sent_decoder.permute(1,0,2) # (2,1,512)
-    #
-    #     scores =[]
-    #     # define sent matrix and current vector distance as the Euclidean distance
-    #     for sent in sent_encoder:
-    #         # distance: https://pytorch.org/docs/stable/_modules/torch/nn/modules/distance.html
-    #         sim2 = 0.5 * torch.sum(pdist(sent_encoder.permute(1,0,2),sent.unsqueeze(1)),1).unsqueeze(1) # this is also similarity func, can be another for-loop
-    #
-    #         sim1 = torch.bmm(self.mmr_W(sent_decoder), sent.unsqueeze(2)).squeeze(2)  # (2,1)
-    #
-    #         scores.append(0.5*(sim1 - sim2))
-    #
-    #     sent_ranking_att = torch.t(torch.cat(scores,1)) #(sent_len=9,batch_size)
-    #     sent_ranking_att = torch.softmax(sent_ranking_att, dim=0).permute(1,0)  #(sent_len=9,batch_size)
-    #     # scores is a list of score (sent_len=9, tensor shape (batch_size, 1))
-    #     mmr_among_words = [] # should be (batch=2,input_step=200)
-    #     for batch_id in range(sent_ranking_att.size()[0]):
-    #         # iterate each batch, create zero weight on the input steps
-    #         # mmr= torch.zeros([input_step], dtype=torch.float32).cuda()
-    #
-    #         tmp = []
-    #         for id,position in enumerate(src_sents[batch_id]):
-    #
-    #             for x in range(position):
-    #                 tmp.append(sent_ranking_att[batch_id][id])
-    #
-    #
-    #         mmr = torch.stack(tmp) # make to 1-d
-    #
-    #
-    #         if len(mmr) < input_step:
-    #             tmp = torch.zeros(input_step - len(mmr)).float().cuda()
-    #             # for x in range(input_step-len(mmr)):
-    #             mmr = torch.cat((mmr, tmp), 0)
-    #         else:
-    #             mmr = mmr[:input_step]
-    #
-    #         mmr_among_words.append(mmr.unsqueeze(0))
-    #
-    #     mmr_among_words = torch.cat(mmr_among_words,0)
-    #
-    #     # shape: (batch=2, input_step=200)
-    #
-    #     return mmr_among_words
 
     def _run_mmr_attention(self,sent_encoder,sent_decoder,src_sents,input_step):
         '''
@@ -394,7 +335,6 @@ class InputFeedRNNDecoder(RNNDecoderBase):
         :return:
         '''
 
-        print ('Enter')
         pdist = nn.PairwiseDistance(p=2)
         sent_decoder=sent_decoder.permute(1,0,2) # (2,1,512)
 
@@ -402,15 +342,7 @@ class InputFeedRNNDecoder(RNNDecoderBase):
         # define sent matrix and current vector distance as the Euclidean distance
         for sent in sent_encoder:
             # distance: https://pytorch.org/docs/stable/_modules/torch/nn/modules/distance.html
-            import pdb;
-            pdb.set_trace()
-
-
-
             sim2 = 0.5 * torch.sum(pdist(sent_encoder.permute(1,0,2),sent.unsqueeze(1)),1).unsqueeze(1) # this is also similarity func, can be another for-loop
-
-
-
 
             sim1 = torch.bmm(self.mmr_W(sent_decoder), sent.unsqueeze(2)).squeeze(2)  # (2,1)
 
@@ -522,6 +454,8 @@ class InputFeedRNNDecoder(RNNDecoderBase):
                 attns["coverage"] += [coverage]
 
             # Run the forward pass of the copy attention layer.
+            #
+
             if self._copy and not self._reuse_copy_attn:
 
                 _, copy_attn = self.copy_attn(decoder_output, memory_bank.transpose(0, 1))
@@ -531,21 +465,27 @@ class InputFeedRNNDecoder(RNNDecoderBase):
 
 
 
-        # TODO : the sentence representation for decoder
+        # 2333: TODO : the sentence representation for decoder
         sent_decoder = decoder_outputs[-1].unsqueeze(0)  # shape: (1, batch_size=2,dim=512)
 
         # Return result.
-        # TODO: attns['std'] is a list of tensors, length is output_step, each tensor shape is (batch=2,input_step=200)
+        # 2333: TODO: attns['std'] is a list of tensors, length is output_step, each tensor shape is (batch=2,input_step=200)
+
+        # 2333: TODO: compute mmr attention here:
+        print ('Now..')
         mmr_among_words = self._run_mmr_attention(sent_encoder, sent_decoder, src_sents,attns["std"][0].size()[-1])
 
-        # TODO: use MMR to modify attention
+        #  2333: TODO: bring mmr to attention...
+
         for output_step in attns["std"]:
             attention_weight = output_step
             # pairwise multiplication
             attention_weight = torch.mul(mmr_among_words,attention_weight)
             attns["mmr"].append(attention_weight.cuda())
+        # pdb.set_trace()
 
         attns["std"] = attns["mmr"]
+
         # decoder_outputs is a list of tensors for each output step=51, each tensor: (batch_size=2,dim=512)
         return hidden, decoder_outputs, attns
 
